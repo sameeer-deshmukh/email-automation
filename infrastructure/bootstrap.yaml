@@ -6,3 +6,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub email-automation-artifacts-${AWS::AccountId}
+
+Outputs:
+  HelloWorldBucket:
+    Value: !Ref ArtifactBucket
