@@ -42,7 +42,7 @@ jobs:
 
         run: |
           aws cloudformation deploy \
-            --template-file infrastructure/stack.yaml \
+            --template-file infrastructure/lambda-stack.yaml \
             --stack-name hello_world-stack \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
