@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+
+  LambdaCodeBucket:
+    Type: String
+
+  LambdaCodeKey:
+    Type: String
+
+
+Resources:
+
+  HelloWorldBucket:
+    Type: AWS::S3::Bucket
+
+  HelloWorldLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: first-lambda-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  HelloWorldLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: hello-world-lambda
+      Runtime: python3.12
+      Handler: app.lambda_handler
+      Timeout: 30
+      Role: !GetAtt HelloWorldLambdaRole.Arn
+
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: !Ref LambdaCodeKey
+
+
+
+Outputs:
+
+  LambdaName:
+    Value: !Ref HelloWorldLambda
+
+  ArtifactBucket:
+    Value: !Ref HelloWorldBucket
+

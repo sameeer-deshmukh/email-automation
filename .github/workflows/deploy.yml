@@ -1,0 +1,50 @@
+name: Deploy Email Automation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      STACK_NAME: email-automation
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Package Lambda
+
+        run: |
+          cd lambda/src
+          zip -r ../../lambda.zip .
+
+      - name: Upload To S3
+
+        run: |
+          aws s3 cp \
+          lambda.zip \
+          s3://${{ secrets.ARTIFACT_BUCKET }}/lambda.zip
+
+      - name: Deploy Stack
+
+        run: |
+          aws cloudformation deploy \
+            --template-file infrastructure/stack.yaml \
+            --stack-name hello_world-stack \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+            LambdaCodeBucket=${{ secrets.ARTIFACT_BUCKET }} \
+            LambdaCodeKey=lambda.zip
